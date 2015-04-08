@@ -49,18 +49,17 @@ ln -s raxmlHPC-SSE3 raxml
 USAGE
 =====
 
-Example: ./run_MitoPhASTv1.sh -i example/input/ -n HG942366,HG799086 -m -I -B 1000 -R 5 -T 15
+Example: ./run_MitoPhASTv1.sh -i example/input/ -n HG942366,HG799086 -m -I -B 100 -R 50 -T 15
 
--i <path>       input directory containing only Genbank and/or EMBL files [at least one of -i and -n is required]
--n <string>     comma-separated string of mitogenome accession IDs to download from NCBI [at least one of -i or -n is required]
--m              optional argument to exclude genes which are absent in some files (default: include all genes, missing genes are substituted with hyphens)
--I              turns off interactive prompt for user to check for missing genes (default: interactive) If prompt is disabled, program will only provide warning to standard output.
--S              stops program after supermatrix construction, turns off model estimation and ML analysis
--B <int>        number of bootstrap replicates (default: 100 reps)
--R <int>        number of ML trees generated (default: 1)
--T <int>        number of threads (default: 2, must be greater than 1)
--s              run ML analysis with standard bootstrapping (default: rapid bootstrapping)
-
+-i <path> input directory containing Genbank and/or EMBL files [at least one of -i and -n is required]
+-n <string>       comma-separated string of mitogenome accession IDs to download from NCBI [at least one of -i or -n is required]
+-m                optional argument to exclude genes which are absent in some files (default: include all genes, missing genes are substituted with hyphens)
+-I                turns off interactive prompt for user to check for missing genes (default: interactive) If prompt is disabled, program will only provide warning to standard output
+-S                stops program after supermatrix construction, turns off model estimation and ML analysis
+-B <int>          number of bootstrap replicates (default: autoMRE)
+-R <int>          number of ML trees generated - if standard bootstrapping is used, one tree out of <int> with best likelihood score is produced. if rapid bootstrapping is used, <int> trees will be produced (default: 100)
+-T <int>          number of threads (default: 2, must be greater than 1)
+-r                run ML analysis with rapid bootstrapping (default: standard bootstrapping)
 
 OUTPUT
 ======
@@ -84,7 +83,7 @@ Briefly:
  
 Extracted sequences can be found in the sequences folder with .cds.fa suffixes.
 FASTA and PHYLIP files after alignment can be found in the align_trim folder as all_13pcg.fasta and all_13pcg.phy.
-Final tree from RAxML analysis with rapid bootstrapping (100 bootstrap reps) can be found in the ml_analysis folder in the MLtree.renamed.tre.
+Final tree from RAxML analysis with standard/rapid bootstrapping can be found in the ml_analysis folder in the MLtree.renamed.tre.
 
 
 In detail:
@@ -119,7 +118,7 @@ ProtTest is used to find the best-fitting model for the alignment.
 
 $PATH/example/input-out/phylogeny/ml_analysis/
 ----------------------------------------------
-RAxML is used to run a maximum-likelihood analysis on the resulting PHYLIP file with PCGs. Analysis is run with rapid bootstrapping of 100 replicates. The resulting tree can be found in the MLtree*.renamed.tre files.
+RAxML is used to run a maximum-likelihood analysis on the resulting PHYLIP file with PCGs. Analysis is run with standard/rapid bootstrapping. The resulting tree can be found in the MLtree*.renamed.tre files.
 
 
 Gene ID list

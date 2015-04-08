@@ -1,18 +1,18 @@
 #!/bin/bash
 
-bootstrap="100"
-mlrep="1"
+bootstrap="autoMRE"
+mlrep="100"
 threads="2"
 
 function checkargs {
-if [[ $OPTARG =~ ^-[i/n/m/B/R/T/I/S]$ ]]
+if [[ $OPTARG =~ ^-[i/n/m/B/R/T/I/S/r]$ ]]
 then
 	echo "$OPTARG is an invalid argument to -$opt"
 	exit
 fi
 }
 
-while getopts "i:n:B:R:T:mISs" opt
+while getopts "i:n:B:R:T:mISr" opt
 do
 case $opt in
 i)
@@ -36,8 +36,8 @@ I)
 	noninteractive="int";;
 S)
 	supermatstop="stop";;
-s)
-	standardBS="standard";;
+r)
+	rapidBS="rapid";;
 :)
 	echo "option -$OPTARG requires an argument"
 	exit
@@ -57,10 +57,10 @@ then
 		echo "-m		optional argument to exclude genes which are absent in some files (default: include all genes, missing genes are substituted with hyphens)"
 		echo "-I		turns off interactive prompt for user to check for missing genes (default: interactive) If prompt is disabled, program will only provide warning to standard output."
 		echo "-S		stops program after supermatrix construction, turns off model estimation and ML analysis" 
-		echo "-B <int>	number of bootstrap replicates (default: 100 reps)"
-		echo "-R <int>	number of ML trees generated (default: 1)"
+		echo "-B <int>	number of bootstrap replicates (default: autoMRE)"
+		echo "-R <int>	number of ML trees generated - if standard bootstrapping is used, one tree out of <int> with best likelihood score is produced. if rapid bootstrapping is used, <int> trees will be produced (default: 100)"
 		echo "-T <int>	number of threads (default: 2, must be greater than 1)"
-		echo "-s		run ML analysis with standard bootstrapping (default: rapid bootstrapping)"
+		echo "-r		run ML analysis with rapid bootstrapping (default: standard bootstrapping)"
 		echo
 		exit
 	fi
@@ -133,8 +133,9 @@ if [ ! -z "$in_dir_tmp" ]
 then
 	for file in $in_dir/*
 	do
-	name=`echo $file | sed 's/^.*\///g'`
-	sed 's/D-loop/misc_feature/g' $file > $out_dir/input_tmp/$name
+	name=`echo $file | sed 's/^.*\///g' | sed 's/ /_/g'`
+	name2=`echo "PSEUDO"$RANDOM`
+	sed 's/D-loop/misc_feature/g' $file | awk -v var="$name2" '{if ($1 ~ /^LOCUS/ && NF == "7") print $1"       "var"              "$2, $3"    "$4"     "$5, $6, $7; else if ($1 ~ /^ACCESSION/ && NF == "1") print $1"   "var; else print $0}' > $out_dir/input_tmp/$name
 	done
 fi
 
@@ -142,7 +143,7 @@ if [ ! -z "$download" ]
 then
 	for file in $out_dir/downloads/*gb*
 	do
-	name=`echo $file | sed 's/^.*\///g'`
+	name=`echo $file | sed 's/^.*\///g' | sed 's/ /_/g'`
 	sed 's/D-loop/misc_feature/g' $file > $out_dir/input_tmp/$name
 	done
 fi
@@ -332,7 +333,7 @@ fi
 while read line
 do
 echo ">$line" > $line.cat.fasta
-cat all_*trimal.fasta-2 | perl -pe 's/\n/\t/g' | perl -pe 's/\t>/\n>/g' | fgrep "$line" | perl -pe 's/\t/\n/g' | grep -v ">" | perl -pe 's/\n//g' | awk '{print $0}' >> $line.cat.fasta
+cat all_*trimal.fasta-2 | perl -pe 's/\n/\t/g' | perl -pe 's/\t>/\n>/g' | fgrep ">$line-" | perl -pe 's/\t/\n/g' | grep -v ">" | perl -pe 's/\n//g' | awk '{print $0}' >> $line.cat.fasta
 done<"acclist"
 
 cat *.cat.fasta > all_13pcg.fasta
@@ -428,71 +429,110 @@ cd ../ml_analysis
 cp $out_dir/phylogeny/align_trim/all_13pcg.phy $out_dir/phylogeny/ml_analysis/
 cp $out_dir/phylogeny/model_select/partitions.txt $out_dir/phylogeny/ml_analysis/
 
-for ((rep=1; rep<=$mlrep; rep++))
-do
-p_rand=$RANDOM
-bx_rand=$RANDOM
-
-mkdir $out_dir/phylogeny/ml_analysis/tree$rep
-cd $out_dir/phylogeny/ml_analysis/tree$rep
-
 # Running RAxML with rapid bootstrapping
 
-if [ -z "$standardBS" ]
+if [ ! -z "$rapidBS" ]
 then
-	echo "Running RAxML with rapid bootstrapping for tree$rep with command: "
-	echo "$programs/standard-RAxML-master/raxml -f a -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -x $bx_rand -# $bootstrap -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n R$rep -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.log 2>&1"
-	echo
+	for ((rep=1; rep<=$mlrep; rep++))
+	do
+		p_rand=$RANDOM
+		bx_rand=$RANDOM
 
-	$programs/standard-RAxML-master/raxml -f a -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -x $bx_rand -# $bootstrap -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n R$rep -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.log 2>&1
+		mkdir $out_dir/phylogeny/ml_analysis/tree$rep
+		cd $out_dir/phylogeny/ml_analysis/tree$rep
 
-	if [ ! -s RAxML_bipartitions.R$rep ]; then
-		echo "RAxML failed for tree $rep, script terminated!"
-		exit
-	fi
+		echo "Running RAxML with rapid bootstrapping for tree$rep with command: "
+		echo "$programs/standard-RAxML-master/raxml -f a -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -x $bx_rand -# $bootstrap -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n R$rep -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.log 2>&1"
+		echo
 
-	cp RAxML_bipartitions.R$rep MLtree$rep.renamed.tre
+		$programs/standard-RAxML-master/raxml -f a -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -x $bx_rand -# $bootstrap -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n R$rep -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.log 2>&1
+
+		if [ ! -s RAxML_bipartitions.R$rep ]; then
+			echo "RAxML failed for tree $rep, script terminated!"
+			exit
+		fi
+
+		cp RAxML_bipartitions.R$rep MLtree$rep.renamed.tre
+
+		while read line
+		do
+			tosub=`echo "$line" | awk -F"\t" '{print $1}'`
+			subwith=`echo "$line" | awk -F"\t" '{print $2}'`
+			sed "s/$tosub\:/$subwith\:/g" MLtree$rep.renamed.tre > tempMLfile
+			mv tempMLfile MLtree$rep.renamed.tre
+		done<"$out_dir/summaries/specieslist"
+	done
 fi
 
 # Running RAxML with standard bootstrapping
 
-if [ ! -z "$standardBS" ]
+if [ -z "$rapidBS" ]
 then
-	echo "Running RAxML with standard bootstrapping for tree$rep with commands: "
-	echo "$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -# 20 -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S$rep.1 -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.1.log 2>&1"
-	echo "$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -b $bx_rand -# $bootstrap -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S$rep.2 -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.2.log 2>&1"
-	echo "$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -f b -t RAxML_bestTree.S$rep.1 -z RAxML_bootstrap.S$rep.2 -n S$rep.3 > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.3.log 2>&1"
+	mkdir $out_dir/phylogeny/ml_analysis/tree/
+	cd $out_dir/phylogeny/ml_analysis/tree/
+	touch RAxML_bestTree.S1-all
+
+	# Generate ML trees
+	for ((rep=1; rep<=$mlrep; rep++))
+	do
+		p_rand=$RANDOM
+		echo "Running RAxML tree$rep with commands: "
+		echo "$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S1-$rep -T $threads > $out_dir/phylogeny/ml_analysis/tree/raxml.S1-$rep.log 2>&1"
+		$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S1-$rep -T $threads > $out_dir/phylogeny/ml_analysis/tree/raxml.S1-$rep.log 2>&1
+		cat RAxML_bestTree.S1-$rep >> RAxML_bestTree.S1-all
+	done
+
+	# Find tree with best likelihood
+	$programs/standard-RAxML-master/raxml -f N -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -m PROTGAMMAWAG -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n fN -z RAxML_bestTree.S1-all -T $threads > raxml.S1-fN.log 2>&1
+	best=`grep -P "^\d+" RAxML_info.fN | head -1 | awk '{print $1+1}'`
+	echo
+	echo "Tree number $best out of $mlrep has best likelihood score. See $out_dir/phylogeny/ml_analysis/tree/RAxML_info.fN for more details"
 	echo
 
-	$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -# 20 -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S$rep.1 -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.1.log 2>&1
-	$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -b $bx_rand -# $bootstrap -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S$rep.2 -T $threads > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.2.log 2>&1
-	$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -f b -t RAxML_bestTree.S$rep.1 -z RAxML_bootstrap.S$rep.2 -n S$rep.3 > $out_dir/phylogeny/ml_analysis/tree$rep/raxml.3.log 2>&1
+	# Standard bootstrapping
+	p_rand=$RANDOM
+	bx_rand=$RANDOM	
+	echo "$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S2-bs$bootstrap -b $bx_rand -# $bootstrap -T $threads > raxml.S2-bs$bootstrap.log 2>&1"
+	echo
+	$programs/standard-RAxML-master/raxml -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -p $p_rand -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n S2-bs$bootstrap -b $bx_rand -# $bootstrap -T $threads > raxml.S2-bs$bootstrap.log 2>&1
 
-	if [ ! -s RAxML_bipartitions.S$rep.3 ]; then
-		echo "RAxML failed for tree $rep, script terminated!"
+	# Map bootstrap to best tree
+	p_rand=$RANDOM
+	echo "$programs/standard-RAxML-master/raxml -f b -m PROT$gamma$model$freq -t RAxML_bestTree.S1-$best -p $p_rand -z RAxML_bootstrap.S2-bs$bootstrap -n S3-t$best-bs$bootstrap -T $threads > raxml.S3-t$best-bs$bootstrap.log 2>&1"
+	echo
+	$programs/standard-RAxML-master/raxml -f b -m PROT$gamma$model$freq -t RAxML_bestTree.S1-$best -p $p_rand -z RAxML_bootstrap.S2-bs$bootstrap -n S3-t$best-bs$bootstrap -T $threads > raxml.S3-t$best-bs$bootstrap.log 2>&1
+
+	if [ ! -s RAxML_bipartitions.S3-t$best-bs$bootstrap ]; then
+		echo "RAxML with standard bootstrapping failed, script terminated!"
 		exit
 	fi
-	cp RAxML_bipartitions.S$rep.3 MLtree$rep.renamed.tre
+	cp RAxML_bipartitions.S3-t$best-bs$bootstrap MLtree.renamed.tre
+
+	while read line
+	do
+		tosub=`echo "$line" | awk -F"\t" '{print $1}'`
+		subwith=`echo "$line" | awk -F"\t" '{print $2}'`
+		sed "s/$tosub\:/$subwith\:/g" MLtree.renamed.tre > tempMLfile
+		mv tempMLfile MLtree.renamed.tre
+	done<"$out_dir/summaries/specieslist"
 fi
-
-while read line
-do
-tosub=`echo "$line" | awk -F"\t" '{print $1}'`
-subwith=`echo "$line" | awk -F"\t" '{print $2}'`
-sed "s/$tosub\:/$subwith\:/g" MLtree$rep.renamed.tre > tempMLfile
-mv tempMLfile MLtree$rep.renamed.tre
-done<"$out_dir/summaries/specieslist"
-
-done
 
 ########## Reiterate missing genes by PFAM/PRINTS and Name ##########
 
 echo "----------PROGRAM RUN COMPLETED----------"
 echo
-for ((rep=1; rep<=$mlrep; rep++))
-do
-echo "ML tree #$rep file with bootstrap values can be found in file $out_dir/phylogeny/ml_analysis/tree$rep/MLtree$rep.renamed.tre"
-done
+if [ ! -z "$rapidBS" ]
+then
+	for ((rep=1; rep<=$mlrep; rep++))
+	do
+		echo "ML tree #$rep file with bootstrap values can be found in file $out_dir/phylogeny/ml_analysis/tree$rep/MLtree$rep.renamed.tre"
+	done
+fi
+if [ -z "$rapidBS" ]
+then
+	echo "ML tree file with bootstrap values can be found in file $out_dir/phylogeny/ml_analysis/tree/MLtree.renamed.tre"
+fi
+
 echo
 if [ -s $out_dir/profiles/missed1 ]
 then
@@ -504,11 +544,10 @@ then
 		echo "NOTE: Identification by gene ID still failed to identify some protein sequences for the following samples:"
 		echo "$(cat $out_dir/profiles/missed2)"
 		echo
+		rm $out_dir/profiles/missed2
 	fi
 	echo "See above messages or README.txt for more information."
+	rm $out_dir/profiles/missed1
 fi
 echo "-----------------------------------------"
 echo
-rm $out_dir/profiles/missed1
-rm $out_dir/profiles/missed2
-
