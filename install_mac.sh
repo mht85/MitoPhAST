@@ -23,10 +23,8 @@ exit
 fi
 
 # Unpack FingerPRINTScan
-tar -zxvf FingerPRINTScan_3596.tgz
-cd FingerPRINTScan_3596
-./configure --prefix=$programs/FingerPRINTScan_3596 && make && make install
-cd ..
+mkdir $programs/FingerPRINTScan_3596
+mv $programs/fingerPRINTScan $programs/FingerPRINTScan_3596/
 
 if [ ! -s $programs/FingerPRINTScan_3596/fingerPRINTScan ]
 then
