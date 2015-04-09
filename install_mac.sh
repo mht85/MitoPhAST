@@ -9,6 +9,7 @@ rm -rf clustal-omega/clustal-omega-1.2.0
 rm -rf prottest-3.4-20140123
 rm -rf standard-RAxML-master
 rm -rf trimal-trimAl_1.4
+rm -rf FingerPRINTScan_3596
 
 # Unpack hmmer
 tar -zxvf hmmer-3.0.tar.gz
@@ -24,7 +25,7 @@ fi
 
 # Unpack FingerPRINTScan
 mkdir $programs/FingerPRINTScan_3596
-mv $programs/fingerPRINTScan $programs/FingerPRINTScan_3596/
+ln -s $programs/fingerPRINTScan $programs/FingerPRINTScan_3596/fingerPRINTScan
 
 if [ ! -s $programs/FingerPRINTScan_3596/fingerPRINTScan ]
 then
