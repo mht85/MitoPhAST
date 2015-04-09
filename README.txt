@@ -57,7 +57,7 @@ Example: ./run_MitoPhASTv1.sh -i example/input/ -n HG942366,HG799086 -m -I -B 10
 -I                turns off interactive prompt for user to check for missing genes (default: interactive) If prompt is disabled, program will only provide warning to standard output
 -S                stops program after supermatrix construction, turns off model estimation and ML analysis
 -B <int>          number of bootstrap replicates (default: autoMRE)
--R <int>          number of ML trees generated if standard bootstrapping is used - one tree out of <int> with best likelihood score is produced (default: 100)
+-R <int>          number of ML trees generated if standard bootstrapping is used - one tree out of <int> with best likelihood score is produced (default: 1)
 -T <int>          number of threads (default: 2, must be greater than 1)
 -r                run ML analysis with rapid bootstrapping (default: standard bootstrapping)
 

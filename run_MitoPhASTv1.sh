@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bootstrap="autoMRE"
-mlrep="100"
+mlrep="1"
 threads="2"
 
 function checkargs {
@@ -58,7 +58,7 @@ then
 		echo "-I		turns off interactive prompt for user to check for missing genes (default: interactive) If prompt is disabled, program will only provide warning to standard output."
 		echo "-S		stops program after supermatrix construction, turns off model estimation and ML analysis" 
 		echo "-B <int>	number of bootstrap replicates (default: autoMRE)"
-		echo "-R <int>	number of ML trees generated if standard bootstrapping is used - one tree out of <int> with best likelihood score is produced (default: 100)"
+		echo "-R <int>	number of ML trees generated if standard bootstrapping is used - one tree out of <int> with best likelihood score is produced (default: 1"
 		echo "-T <int>	number of threads (default: 2, must be greater than 1)"
 		echo "-r		run ML analysis with rapid bootstrapping (default: standard bootstrapping)"
 		echo
