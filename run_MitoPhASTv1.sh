@@ -491,7 +491,7 @@ then
 	done
 
 	# Find tree with best likelihood
-	$programs/standard-RAxML-master/raxml -f N -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -m PROTGAMMAWAG -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n fN -z RAxML_bestTree.S1-all -T $threads > raxml.S1-fN.log 2>&1
+	$programs/standard-RAxML-master/raxml -f N -m PROT$gamma$model$freq -q $out_dir/phylogeny/ml_analysis/partitions.txt -s $out_dir/phylogeny/ml_analysis/all_13pcg.phy -n fN -z RAxML_bestTree.S1-all -T $threads > raxml.S1-fN.log 2>&1
 	best=`grep -P "^\d+" RAxML_info.fN | head -1 | awk '{print $1+1}'`
 	echo
 	echo "Tree number $best out of $mlrep has best likelihood score. See $out_dir/phylogeny/ml_analysis/tree/RAxML_info.fN for more details"
