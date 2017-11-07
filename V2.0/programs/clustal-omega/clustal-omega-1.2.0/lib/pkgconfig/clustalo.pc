@@ -1,0 +1,12 @@
+prefix=/media/disk2/phd/0.mitophast/V2.0/programs//clustal-omega/clustal-omega-1.2.0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: clustal-omega
+Description: Clustal Omega library.
+Version: 1.2.0
+Requires:
+Libs: -L${libdir} -lclustalo
+Cflags: -I${includedir}/clustalo/
+
