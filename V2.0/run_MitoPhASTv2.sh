@@ -62,7 +62,7 @@ then
 		echo "-b <int>	number of ultrafast bootstrap replicates run on IQ-TREE (default: 1000, must be >= 1000)"
 		echo "-a <int>	number of SH-aLRT replicates run on IQ-TREE (default: 1000)"
 		echo "-T <int>	number of threads (default: 1)"
-		echo "-O <string>	gene to orient to for linear gene order comparison analysis (if not provided, analysis is skipped), see README for allowed genes"
+		echo "-O <string>	gene to orient to for linear gene order comparison analysis (if not provided, analysis is skipped), allowed genes=ATP6/ATP8/COB/COX1/COX2/COX3/NAD1/NAD2/NAD3/NAD4/NAD4L/NAD5/NAD6/rrnS/rrnL/trnA/trnC/trnD/trnE/trnF/trnG/trnH/trnI/trnK/trnL/trnM/trnN/trnP/trnQ/trnR/trnS/trnT/trnV/trnW/trnW/trnY"
 		echo
 		exit
 	fi
