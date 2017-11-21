@@ -52,7 +52,7 @@ then
 	then
 		echo "MitoPhAST usage example:"
 		echo
-		echo "run_MitoPhASTv1.sh -i example/input/ -n HG942366,HG799086 -T 15 -O COX1"
+		echo "run_MitoPhASTv2.sh -i example/input/ -n HG942366,HG799086 -T 15 -O COX1"
 		echo
 		echo "-i <path>	input directory containing Genbank and/or EMBL files [at least one of -i and -n is required]"
 		echo "-n <string>	comma-separated string of mitogenome accession IDs to download from NCBI [at least one of -i or -n is required]"
