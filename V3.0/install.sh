@@ -82,9 +82,9 @@ exit
 fi
 
 # install NCBI BLAST
-tar -zxvf ncbi-blast-2.6.0+-x64-linux.tar.gz
+tar -zxvf ncbi-blast-2.6.0+.tar.gz
 
-if [ ! -s $exe/ncbi-blast-2.6.0+/bin/blastp ]
+if [ ! -s $exe/ncbi-blast-2.6.0+/bin/blastn ]
 then
 echo "ERROR: BLAST installation failed"
 exit

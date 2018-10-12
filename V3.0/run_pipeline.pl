@@ -54,7 +54,7 @@ GetOptions ("in=s" => \$indir,
 	    "help" => \$help);
 
 $usage =
-"Usage example: ./run_pipeline.pl -in mitofiles -acc NC_001645.1,NC_008795.1 -out analysis_out --summarize --build_trees -mito_gcode 1 -mode pcg -chars nt --gene_order -ori COX1
+"Usage example: ./run_pipeline.pl -in data -out analysis_out --summarize --build_trees -mito_gcode 5 -mode custom -pcg all -other_pcg H3,H4 -other_pcg_gcode 1 -chars nt --gene_order -ori COX1
 
 Options:
 
