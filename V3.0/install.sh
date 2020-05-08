@@ -8,7 +8,7 @@ rm -rf FingerPRINTScan_3596
 rm -rf Gblocks_0.91b
 rm -rf hmmer-3.1b2-linux-intel-x86_64
 rm -rf iqtree-omp-1.5.5
-rm -rf mafft-7.222-with-extensions
+rm -rf mafft-7.394-with-extensions
 rm -rf ncbi-blast-2.6.0+
 
 # install FASconCAT
@@ -25,19 +25,19 @@ exit
 fi
 
 # install FingerPRINTScan
-tar -zxvf FingerPRINTScan_3596.tgz
+mkdir FingerPRINTScan_3596
 cd FingerPRINTScan_3596
-./configure --prefix=$exe/FingerPRINTScan_3596/ && make && make install
+ln -s ../fingerPRINTScan.linux fingerPRINTScan
 cd ..
 
-if [ ! -s $exe/FingerPRINTScan_3596/bin/fingerPRINTScan ]
+if [ ! -s $exe/FingerPRINTScan_3596/fingerPRINTScan ]
 then
 echo "ERROR: FingerPRINTScan installation failed"
 exit
 fi
 
 # install Gblocks
-tar -xvf Gblocks_Linux64_0.91b.tar
+zcat Gblocks_Linux64_0.91b.tar.Z | tar -xvf -
 
 if [ ! -s $exe/Gblocks_0.91b/Gblocks ]
 then
@@ -82,7 +82,7 @@ exit
 fi
 
 # install NCBI BLAST
-tar -zxvf ncbi-blast-2.6.0+.tar.gz
+tar -zxvf ncbi-blast-2.6.0+-x64-linux.tar.gz
 
 if [ ! -s $exe/ncbi-blast-2.6.0+/bin/blastn ]
 then

@@ -380,9 +380,11 @@ sub align_pcg {
 		($out_aln = (split(/\//, $file_aln))[-1]) =~ s/.fa$/.align/g;
 		if ($file_aln =~ /.aa.fa$/) {
 			system("$exedir/mafft-7.394-with-extensions/bin/mafft --localpair --thread $cpu --adjustdirection $file_aln > $aligndir/pcgaa/$out_aln 2>$aligndir/pcgaa/mafft.log");
-			system("sed -i 's/\_R\_//g' $aligndir/pcgaa/$out_aln");
+			system("sed -i.bak 's/\_R\_//g' $aligndir/pcgaa/$out_aln");
+			system("rm $aligndir/pcgaa/$out_aln.bak");
 			system("$exedir/Gblocks_0.91b/Gblocks $aligndir/pcgaa/$out_aln -t=p -b2=$minflankpos -b3=8 -b4=5 -b5=h -e=.fas >> $aligndir/pcgaa/gblocks.log 2>&1");
-			system("sed -i 's/ //g' $aligndir/pcgaa/$out_aln.fas");
+			system("sed -i.bak 's/ //g' $aligndir/pcgaa/$out_aln.fas");
+			system("rm $aligndir/pcgaa/$out_aln.fas.bak");
 		} elsif ($file_aln =~ /.nt.fa$/) {
 			($file_aln_aa = $file_aln) =~ s/.nt.fa/.aa.fa/g;
 			($file_aln_aa_tmp = (split(/\//, $file_aln_aa))[-1]) =~ s/.fa$/.stop.fa/g;
@@ -405,7 +407,8 @@ sub align_pcg {
 			undef $seq;
 			($out_aln_aa = (split(/\//, $file_aln_aa_stop))[-1]) =~ s/.fa$/.align/g;
 			system("$exedir/mafft-7.394-with-extensions/bin/mafft --localpair --thread $cpu --adjustdirection $file_aln_aa_stop > $aligndir/pcgnt/$out_aln_aa 2>$aligndir/pcgnt/mafft.log");
-			system("sed -i 's/\_R\_//g' $aligndir/pcgnt/$out_aln_aa");
+			system("sed -i.bak 's/\_R\_//g' $aligndir/pcgnt/$out_aln_aa");
+			system("rm $aligndir/pcgnt/$out_aln_aa.bak");
 			system("perl $exedir/TranslatorX_v1.1/translatorx_vLocal.edit.pl -i $file_aln -o $aligndir/pcgnt/$out_aln -a $aligndir/pcgnt/$out_aln_aa -c $gcode -p F -g \"-b2=$minflankpos -b3=8 -b4=5 -b5=h\" >> $aligndir/pcgnt/translatorx.log 2>&1");
 #			system("perl $exedir/pal2nal.v14/pal2nal.pl $aligndir/pcgnt/$out_aln.aa_cleanali.fasta $aligndir/pcgnt/$out_aln.nt_cleanali.fasta -output fasta -nogap -codontable $gcode > $aligndir/pcgnt/$out_aln.nt_cleanali.fas 2> $aligndir/pcgnt/pal2nal.log");
 			system("ln -s $out_aln.nt_cleanali.fasta $aligndir/pcgnt/$out_aln.nt_cleanali.fas");
@@ -424,9 +427,11 @@ sub align_pcg {
 		($out_aln = (split(/\//, $file_aln))[-1]) =~ s/.fa$/.align/g;
 		if ($file_aln =~ /.aa.fa$/) {
 			system("$exedir/mafft-7.394-with-extensions/bin/mafft --localpair --thread $cpu --adjustdirection $file_aln > $aligndir/pcgaa/$out_aln 2>$aligndir/pcgaa/mafft.log");
-			system("sed -i 's/\_R\_//g' $aligndir/pcgaa/$out_aln");
+			system("sed -i.bak 's/\_R\_//g' $aligndir/pcgaa/$out_aln");
+			system("rm $aligndir/pcgaa/$out_aln.bak");
 			system("$exedir/Gblocks_0.91b/Gblocks $aligndir/pcgaa/$out_aln -t=p -b2=$minflankpos -b3=8 -b4=5 -b5=h -e=.fas >> $aligndir/pcgaa/gblocks.log 2>&1");
-			system("sed -i 's/ //g' $aligndir/pcgaa/$out_aln.fas");
+			system("sed -i.bak 's/ //g' $aligndir/pcgaa/$out_aln.fas");
+			system("rm $aligndir/pcgaa/$out_aln.fas.bak");
 		} elsif ($file_aln =~ /.nt.fa$/) {
 			($file_aln_aa = $file_aln) =~ s/.nt.fa/.aa.fa/g;
 			($file_aln_aa_tmp = (split(/\//, $file_aln_aa))[-1]) =~ s/.fa$/.stop.fa/g;
@@ -449,7 +454,8 @@ sub align_pcg {
 			undef $seq;
 			($out_aln_aa = (split(/\//, $file_aln_aa_stop))[-1]) =~ s/.fa$/.align/g;
 			system("$exedir/mafft-7.394-with-extensions/bin/mafft --localpair --thread $cpu --adjustdirection $file_aln_aa > $aligndir/pcgnt/$out_aln_aa 2>$aligndir/pcgnt/mafft.log");
-			system("sed -i 's/\_R\_//g' $aligndir/pcgnt/$out_aln_aa");
+			system("sed -i.bak 's/\_R\_//g' $aligndir/pcgnt/$out_aln_aa");
+			system("rm $aligndir/pcgnt/$out_aln_aa.bak");
 			system("perl $exedir/TranslatorX_v1.1/translatorx_vLocal.edit.pl -i $file_aln -o $aligndir/pcgnt/$out_aln -a $aligndir/pcgnt/$out_aln_aa -c $gcode -p F -g \"-b2=$minflankpos -b3=8 -b4=5 -b5=h\" >> $aligndir/pcgnt/translatorx.log 2>&1");
 #			system("perl $exedir/pal2nal.v14/pal2nal.pl $aligndir/pcgnt/$out_aln.aa_cleanali.fasta $aligndir/pcgnt/$out_aln.nt_cleanali.fasta -output fasta -nogap -codontable $gcode > $aligndir/pcgnt/$out_aln.nt_cleanali.fas 2> $aligndir/pcgnt/pal2nal.log");
 			system("ln -s $out_aln.nt_cleanali.fasta $aligndir/pcgnt/$out_aln.nt_cleanali.fas");
@@ -474,9 +480,11 @@ sub align_nonpcg {
 		($out_aln = (split(/\//, $file_aln))[-1]) =~ s/.fa$/.align/g;
 		$out_trim = "$out_aln.trim";
 		system("$exedir/mafft-7.394-with-extensions/bin/mafft --localpair --thread $cpu --adjustdirection $file_aln > $aligndir/nonpcg/$out_aln 2> $aligndir/nonpcg/mafft.log");
-		system("sed -i 's/\_R\_//g' $aligndir/nonpcg/$out_aln");
+		system("sed -i.bak 's/\_R\_//g' $aligndir/nonpcg/$out_aln");
+		system("rm $aligndir/nonpcg/$out_aln.bak");
 		system("$exedir/Gblocks_0.91b/Gblocks $aligndir/nonpcg/$out_aln -t=p -b2=$minflankpos -b3=8 -b4=5 -b5=h -e=.fas >> $aligndir/nonpcg/gblocks.log 2>&1");
-		system("sed -i 's/ //g' $aligndir/nonpcg/$out_aln.fas");
+		system("sed -i.bak 's/ //g' $aligndir/nonpcg/$out_aln.fas");
+		system("rm $aligndir/nonpcg/$out_aln.fas.bak");
 		$seqcount = "0";
 		$minflankpos = "";
 	}

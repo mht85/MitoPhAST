@@ -388,7 +388,7 @@ sub validatePCG {
 	for $printfile (keys %printhash) {
 		($print = $printfile) =~ s/.pval//g;
 		$eval = $printhash{$printfile};
-		system("$exedir/FingerPRINTScan_3596/bin/fingerPRINTScan $dbdir/$printfile $seqdir/$printname.pcg.aa.fa -e $eval -o 8 -R > $profdir/$print.$printname.out 2>> $profdir/fpscan.log");
+		system("$exedir/FingerPRINTScan_3596/fingerPRINTScan $dbdir/$printfile $seqdir/$printname.pcg.aa.fa -e $eval -o 8 -R > $profdir/$print.$printname.out 2>> $profdir/fpscan.log");
 		open PRINTS_OUT, "$profdir/$print.$printname.out";
 		while (<PRINTS_OUT>) {
 			if ($_ =~ /^Sn\;/) {
